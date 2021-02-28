@@ -1,6 +1,6 @@
 import time
 
-from ..rgbmatrix import RGBMatrix, RGBMatrixOptions
+from .rpi_rgb_led_matrix import RGBMatrix, RGBMatrixOptions
 from .vmatrix import vmatrix
 
 _SETTINGS = {
