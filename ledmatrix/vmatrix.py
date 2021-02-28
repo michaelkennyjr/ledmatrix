@@ -40,8 +40,8 @@ class vmatrix:
             return None
         
         changed_pixels = []
-        for new_pixel in self.all_pixels():
-            old_pixel = vm_cache.pixel(new_pixel.row, new_pixel.col)
+        for new_pixel in self.pixels:
+            old_pixel = vm_cache.pixels[new_pixel.idx]
             if new_pixel.rgb() != old_pixel.rgb():
                 changed_pixels.append(new_pixel)
                 
@@ -51,7 +51,7 @@ class vmatrix:
         """
         Clears all pixels in vmatrix (sets to black)
         """
-        for pixel in self.all_pixels():
+        for pixel in self.pixels:
             pixel.setrgb(0, 0, 0)
             
     def print_matrix(self):

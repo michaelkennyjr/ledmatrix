@@ -1,6 +1,6 @@
 import time
 
-from .rpi_rgb_led_matrix import RGBMatrix, RGBMatrixOptions
+from rgbmatrix import RGBMatrix, RGBMatrixOptions
 from .vmatrix import vmatrix
 
 _SETTINGS = {
@@ -24,8 +24,8 @@ def draw_matrix(func):
         # Initialize RGB matrix and two virtual matrices (cache, new)
         matrix = RGBMatrix(options=options)
         print('Matrix initialized.')
-        vm_cache = vmatrix(SETTINGS['rows'], _SETTINGS['cols'])
-        vm_new = vmatrix(SETTINGS['rows'], _SETTINGS['cols'])
+        vm_cache = vmatrix(_SETTINGS['rows'], _SETTINGS['cols'])
+        vm_new = vmatrix(_SETTINGS['rows'], _SETTINGS['cols'])
         
         # LOOP until interrupted
         try:

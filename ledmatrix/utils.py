@@ -11,9 +11,8 @@ def _clean_hex(hex_str):
             return None
         
         for char in hex_str:
-            if char.lower() not in ['0123456789abcdef']:
+            if char.lower() not in '0123456789abcdef':
                 return None
-            
         return hex_str
     except:
         return None
@@ -32,9 +31,9 @@ def _hex2rgb(color):
         if color is None:
             return default_color
         
-        r = int(hex_str[:2], 16)
-        g = int(hex_str[2:4], 16)
-        b = int(hex_str[4:], 16)
+        r = int(color[:2], 16)
+        g = int(color[2:4], 16)
+        b = int(color[4:], 16)
         return r, g, b
     else:
         return default_color

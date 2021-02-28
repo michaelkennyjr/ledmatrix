@@ -75,7 +75,7 @@ class draw_text:
         if self.align == 'center':
             self.left_col = self.col0 - int(round(self.text_width / 2.0))
         elif self.align == 'right':
-            self.left_col = self.col0 - text_width - 1
+            self.left_col = self.col0 - self.text_width - 1
         else:
             self.left_col = self.col0
             
