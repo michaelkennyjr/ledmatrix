@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: mk-ledmatrix-util
+Version: 0.0.1
+Summary: Utility package for LED matrix based on hzeller's rpi-rgb-led-matrix
+Home-page: https://github.com/michaelkennyjr/ledmatrix
+Author: Michael Kenny
+Author-email: michaelkennyjr@gmail.com
+License: UNKNOWN
+Project-URL: Bug Tracker, https://github.com/michaelkennyjr/ledmatrix/issues
+Description: # ledmatrix
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
