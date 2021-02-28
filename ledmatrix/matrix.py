@@ -1,6 +1,6 @@
 import time
-from rgbmatrix import RGBMatrix, RGBMatrixOptions
 
+from ..rgbmatrix import RGBMatrix, RGBMatrixOptions
 from .vmatrix import vmatrix
 
 _SETTINGS = {
