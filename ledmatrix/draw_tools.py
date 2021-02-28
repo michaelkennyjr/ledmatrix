@@ -51,41 +51,53 @@ def draw_box(vmatrix, addr0, addr1, rgb):
             vmatrix.pixel(row, col).setrgb(*rgb)
 
 
-def draw_text(vmatrix, row0, col0, text_string, font=_DEFAULT_FONT,
-              rgb=(255, 255, 255), align='left', spacing=0):
+class draw_text:
     """
     Draws text in the virtual matrix using a BDF font
+    This is a class rather than a function so that its attributes (such as text_width) can
+    be referenced when drawing other shapes.
     """
-    rgb = _hex2rgb(rgb)
-    
-    bdf_font = _load_font(font, spacing)
-    string_glyphs = [bdf_font['font_obj'][ord(c)] for c in text_string]
-    
-    # Calculate text width and offset col for center/right align
-    text_width = (sum([g.bbW for g in string_glyphs]) +
-                  spacing * (len(string_glyphs) - 1))
-    if align == 'center':
-        col0 -= int(round(text_width / 2.0))
-    elif align == 'right':
-        col0 -= text_width - 1
+    def __init__(self, vmatrix, row0, col0, text_string, font=_DEFAULT_FONT,
+                 rgb=(255, 255, 255), align='left', spacing=0):
+        self.row0 = row0
+        self.col0 = col0
+        self.text_string = text_string
+        self.align = align
         
-    for glyph in string_glyphs:
+        self.rgb = _hex2rgb(rgb)
         
-        # Start at origin, adjusting for bounding box offsets
-        glyph_row0 = row0 - glyph.bbY
-        glyph_col0 = col0 + glyph.bbX
+        bdf_font = _load_font(font, spacing)
+        string_glyphs = [bdf_font['font_obj'][ord(c)] for c in text_string]
         
-        # Iterate through rows bottom to top
-        for i in range(glyph.bbH):
-            pips = format(glyph.data[i], '0{}b'.format(glyph.bbW))
-            for j in range(glyph.bbW):
-                if pips[j] == '1':
-                    pip_row = glyph_row0 - i
-                    pip_col = glyph_col0 + j
-                    draw_dot(vmatrix, pip_row, pip_col, rgb)
-                    
-        # Move col0 to next character
-        col0 += glyph.bbW + bdf_font['spacing']
+        # Calculate text width and offset col for center/right align
+        self.text_width = (sum([g.bbW for g in string_glyphs]) +
+                           spacing * (len(string_glyphs) - 1))
+        if self.align == 'center':
+            self.left_col = self.col0 - int(round(self.text_width / 2.0))
+        elif self.align == 'right':
+            self.left_col = self.col0 - text_width - 1
+        else:
+            self.left_col = self.col0
+            
+        cursor_col = self.left_col
+            
+        for glyph in string_glyphs:
+            
+            # Start at origin, adjusting for bounding box offsets
+            glyph_row0 = self.row0 - glyph.bbY
+            glyph_col0 = cursor_col + glyph.bbX
+            
+            # Iterate through rows bottom to top
+            for i in range(glyph.bbH):
+                pips = format(glyph.data[i], '0{}b'.format(glyph.bbW))
+                for j in range(glyph.bbW):
+                    if pips[j] == '1':
+                        pip_row = glyph_row0 - i
+                        pip_col = glyph_col0 + j
+                        draw_dot(vmatrix, pip_row, pip_col, rgb)
+                        
+            # Move cursor to next character
+            cursor_col += glyph.bbW + bdf_font['spacing']
         
         
 def _load_font(font_path=_DEFAULT_FONT, spacing=0):
