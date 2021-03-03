@@ -52,7 +52,7 @@ class vmatrix:
         Clears all pixels in vmatrix (sets to black)
         """
         for pixel in self.pixels:
-            pixel.setrgb(0, 0, 0)
+            pixel.setrgb((0, 0, 0))
             
     def print_matrix(self):
         """
@@ -95,11 +95,18 @@ class _pixel:
         hex_color = [format(color, '02x') for color in self.rgb()]
         return '{}{}{}'.format(*hex_color)
     
-    def setrgb(self, r=0, g=0, b=0):
+    def setrgb(self, rgb=(0, 0, 0)):
         """
-        Sets pixel to a new color from r/g/b arguments
+        Sets pixel to a new color from RGB
         """
-        for color in (r, g, b):
+        if type(rgb) == str:
+            return self.sethex(rgb)
+        elif type(rgb) != tuple:
+            return
+        if len(rgb) != 3:
+            return
+        
+        for color in rgb:
             try:
                 color = int(color)
             except:
@@ -107,13 +114,13 @@ class _pixel:
             if color < 0 or color > 255:
                 return
             
-        self.r = r
-        self.g = g
-        self.b = b
+        self.r = rgb[0]
+        self.g = rgb[1]
+        self.b = rgb[2]
         
     def sethex(self, hex_str='000000'):
         """
         Sets pixel to a new color from hex
         """
         rgb = _hex2rgb(hex_str)
-        return self.setrgb(*rgb)
+        return self.setrgb(rgb)

@@ -11,7 +11,7 @@ def draw_dot(vmatrix, row, col, rgb):
     """
     rgb = _hex2rgb(rgb)
     if 0 <= row < vmatrix.num_rows and 0 <= col < vmatrix.num_cols:
-        vmatrix.pixel(row, col).setrgb(*rgb)
+        vmatrix.pixel(row, col).setrgb(rgb)
         
 
 def draw_line(vmatrix, addr0, addr1, rgb):
@@ -25,11 +25,11 @@ def draw_line(vmatrix, addr0, addr1, rgb):
     
     if row0 == row1:
         for col in range(max(col0, 0), min(col1 + 1, vmatrix.num_cols)):
-            vmatrix.pixel(row0, col).setrgb(*rgb)
+            vmatrix.pixel(row0, col).setrgb(rgb)
     
     elif col0 == col1:
         for row in range(max(row0, 0), min(row1 + 1, vmatrix.num_rows)):
-            vmatrix.pixel(row, col0).setrgb(*rgb)
+            vmatrix.pixel(row, col0).setrgb(rgb)
             
             
 def draw_box(vmatrix, addr0, addr1, rgb):
@@ -48,7 +48,24 @@ def draw_box(vmatrix, addr0, addr1, rgb):
     
     for row in range(rowA, rowB + 1):
         for col in range(colA, colB + 1):
-            vmatrix.pixel(row, col).setrgb(*rgb)
+            vmatrix.pixel(row, col).setrgb(rgb)
+            
+            
+def draw_diamond(vmatrix, row0, col0, width, rgb):
+    """
+    Draws a diamond with center point row0, col0
+    (width must be an odd integer, at least for now)
+    """
+    if width % 2 != 1:
+        return
+    
+    radius = int((width - 1) / 2)
+    for row in range(row0 - radius, row0 + radius + 1):
+        for col in range(col0 - radius, col0 + radius + 1):
+            offset = abs(row - row0) + abs(col - col0)
+            if (offset <= radius
+                and row <= vmatrix.num_rows and col <= vmatrix.num_cols):
+                vmatrix.pixel(row, col).setrgb(rgb)
 
 
 class draw_text:
