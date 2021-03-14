@@ -27,10 +27,7 @@ class vmatrix:
         Sets pixels based on the indices and colors of the pixels in inputted list
         """
         for px in pixel_list:
-            try:
-                self.pixels[px.idx].setrgb(*px.rgb())
-            except:
-                pass
+            self.pixels[px.idx].setrgb(px.rgb())
     
     def compare_to_cache(self, vm_cache):
         """

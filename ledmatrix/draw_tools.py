@@ -1,8 +1,12 @@
 from bdflib import reader
+import os
+import random
 
 from .utils import _hex2rgb
 
 _DEFAULT_FONT = 'fonts/4x6.bdf'
+_FONTS_PATH = os.path.split(os.path.abspath(__file__))[0]
+_DEFAULT_FONT_PATH = os.path.join(_FONTS_PATH, _DEFAULT_FONT)
 _LOADED_FONTS = []
 
 def draw_dot(vmatrix, row, col, rgb):
@@ -14,14 +18,14 @@ def draw_dot(vmatrix, row, col, rgb):
         vmatrix.pixel(row, col).setrgb(rgb)
         
 
-def draw_line(vmatrix, addr0, addr1, rgb):
+def draw_line(vmatrix, row0=None, col0=None, row1=None, col1=None, rgb=(0, 0, 0)):
     """
     Draws a line between two pixels in the virtual matrix
     (only straight horizontal/vertical, at least for now)
     """
     rgb = _hex2rgb(rgb)
-    row0, col0 = addr0
-    row1, col1 = addr1
+    if None in [row0, col0, row1, col1]:
+        return
     
     if row0 == row1:
         for col in range(max(col0, 0), min(col1 + 1, vmatrix.num_cols)):
@@ -32,14 +36,15 @@ def draw_line(vmatrix, addr0, addr1, rgb):
             vmatrix.pixel(row, col0).setrgb(rgb)
             
             
-def draw_box(vmatrix, addr0, addr1, rgb):
+def draw_box(vmatrix, row0=None, col0=None, row1=None, col1=None, rgb=(0, 0, 0)):
+
     """
     Draws a shaded box in the virtual matrix between two
     kitty-corner pixels
     """
     rgb = _hex2rgb(rgb)
-    row0, col0 = addr0
-    row1, col1 = addr1
+    if None in [row0, col0, row1, col1]:
+        return
     
     rowA = max(min(row0, row1), 0)
     rowB = min(max(row0, row1), vmatrix.num_rows)
@@ -51,11 +56,13 @@ def draw_box(vmatrix, addr0, addr1, rgb):
             vmatrix.pixel(row, col).setrgb(rgb)
             
             
-def draw_diamond(vmatrix, row0, col0, width, rgb):
+def draw_diamond(vmatrix, row0=None, col0=None, width=0, rgb=(0, 0, 0)):
     """
     Draws a diamond with center point row0, col0
     (width must be an odd integer, at least for now)
     """
+    if None in [row0, col0]:
+        return
     if width % 2 != 1:
         return
     
@@ -74,14 +81,18 @@ class draw_text:
     This is a class rather than a function so that its attributes (such as text_width) can
     be referenced when drawing other shapes.
     """
-    def __init__(self, vmatrix, row0, col0, text_string, font=_DEFAULT_FONT,
-                 rgb=(255, 255, 255), align='left', spacing=0):
+    def __init__(self, vmatrix, row0, col0, text_string, font=_DEFAULT_FONT_PATH,
+                 rgb=(255, 255, 255), align='left', spacing=1, background=None):
         self.row0 = row0
         self.col0 = col0
         self.text_string = text_string
         self.align = align
         
         self.rgb = _hex2rgb(rgb)
+        if background is None:
+            self.background = None
+        else:
+            self.background = _hex2rgb(background)
         
         bdf_font = _load_font(font, spacing)
         string_glyphs = [bdf_font['font_obj'][ord(c)] for c in text_string]
@@ -92,12 +103,13 @@ class draw_text:
         if self.align == 'center':
             self.left_col = self.col0 - int(round(self.text_width / 2.0))
         elif self.align == 'right':
-            self.left_col = self.col0 - self.text_width - 1
+            self.left_col = self.col0 - self.text_width + 1
         else:
             self.left_col = self.col0
             
         cursor_col = self.left_col
             
+        # Draw each glyph
         for glyph in string_glyphs:
             
             # Start at origin, adjusting for bounding box offsets
@@ -109,15 +121,17 @@ class draw_text:
                 pips = format(glyph.data[i], '0{}b'.format(glyph.bbW))
                 for j in range(glyph.bbW):
                     if pips[j] == '1':
-                        pip_row = glyph_row0 - i
-                        pip_col = glyph_col0 + j
-                        draw_dot(vmatrix, pip_row, pip_col, rgb)
+                        draw_dot(vmatrix, glyph_row0 - i, glyph_col0 + j, self.rgb)
+                    
+                    # Background color, if given
+                    elif self.background is not None:
+                        draw_dot(vmatrix, glyph_row0 - i, glyph_col0 + j, self.background)
                         
             # Move cursor to next character
             cursor_col += glyph.bbW + bdf_font['spacing']
         
         
-def _load_font(font_path=_DEFAULT_FONT, spacing=0):
+def _load_font(font_path=_DEFAULT_FONT_PATH, spacing=0):
     """
     Returns font from LOADED_FONTS by name; if not loaded, loads it from file
     """

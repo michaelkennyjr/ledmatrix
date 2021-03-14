@@ -31,20 +31,23 @@ def draw_matrix(func):
         try:
             while True:
                 # Refresh data and draw in new virtual matrix
-                func(vmatrix=vm_new, *args, **kwargs)
+                # func is the function being wrapped; func_return is a dict of return arguments
+                func_return = func(vmatrix=vm_new, *args, **kwargs)
                 
                 # If virtual matrix is changed, redraw changed pixels and recache
                 changed_pixels = vm_new.compare_to_cache(vm_cache)
                 if changed_pixels:
-                    _draw_changes(matrix, changed_pixels)
+                    _draw_physical(matrix, changed_pixels)
                     vm_cache.set_pixels(changed_pixels)
                     
-                # Sleep before refreshing, if sleep time is passed in
-                if 'sleep' in kwargs:
-                    try:
-                        time.sleep(kwargs['sleep'])
-                    except:
-                        pass
+                # func_return parameters
+                if type(func_return) == dict:
+                    
+                    # Sleep before refreshing again
+                    if 'sleep' in func_return:
+                        if type(func_return['sleep']) in [int, float]:
+                            if func_return['sleep'] > 0:
+                                time.sleep(func_return['sleep'])
                     
         except KeyboardInterrupt:
             print('Matrix terminated.')
@@ -52,7 +55,7 @@ def draw_matrix(func):
     return run_matrix
 
 
-def _draw_changes(matrix, changed_pixels):
+def _draw_physical(matrix, changed_pixels):
     """
     Redraw list of pixels on physical matrix
     """
