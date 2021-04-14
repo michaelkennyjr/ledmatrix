@@ -10,11 +10,14 @@ _SETTINGS = {
     'gpio_slowdown': 2
 }
 
+_CYCLE = None
+
 def draw_matrix(func):
     """
     Wrapper function to be used as a decorator on an app's primary draw function
     """
     def run_matrix(*args, **kwargs):
+        global _CYCLE
         
         # Set matrix options
         options = RGBMatrixOptions()
@@ -32,6 +35,8 @@ def draw_matrix(func):
             while True:
                 # Refresh data and draw in new virtual matrix
                 # func is the function being wrapped; func_return is a dict of return arguments
+                if _CYCLE is not None:
+                    kwargs['cycle'] = _CYCLE
                 func_return = func(vmatrix=vm_new, *args, **kwargs)
                 
                 # If virtual matrix is changed, redraw changed pixels and recache
@@ -39,6 +44,7 @@ def draw_matrix(func):
                 if changed_pixels:
                     _draw_physical(matrix, changed_pixels)
                     vm_cache.set_pixels(changed_pixels)
+                    vm_new.clear()
                     
                 # func_return parameters
                 if type(func_return) == dict:
@@ -48,9 +54,16 @@ def draw_matrix(func):
                         if type(func_return['sleep']) in [int, float]:
                             if func_return['sleep'] > 0:
                                 time.sleep(func_return['sleep'])
+                                
+                    # Cycle through multiple panels
+                    if 'cycle' in func_return:
+                        cycle = func_return['cycle']
+                        if type(cycle) == tuple:
+                            if len(cycle) == 2:
+                                _CYCLE = ((cycle[0] + 1) % cycle[1], cycle[1])
                     
         except KeyboardInterrupt:
-            print('Matrix terminated.')
+            print('\nMatrix terminated.')
             
     return run_matrix
 

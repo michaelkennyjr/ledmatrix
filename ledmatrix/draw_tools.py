@@ -101,7 +101,7 @@ class draw_text:
         self.text_width = (sum([g.bbW for g in string_glyphs]) +
                            spacing * (len(string_glyphs) - 1))
         if self.align == 'center':
-            self.left_col = self.col0 - int(round(self.text_width / 2.0))
+            self.left_col = self.col0 - int(round(self.text_width / 2.0)) + 1
         elif self.align == 'right':
             self.left_col = self.col0 - self.text_width + 1
         else:
